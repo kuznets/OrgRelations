@@ -1,0 +1,26 @@
+{
+  "comments": {
+    "Using": "Used for migration"
+  },
+  "development": {
+    "username": "pguser",
+    "password": "12345",
+    "database": "org_relations",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "pguser",
+    "password": "12345",
+    "database": "org_relations_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "pguser",
+    "password": "12345",
+    "database": "org_relations",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
