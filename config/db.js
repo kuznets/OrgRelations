@@ -22,9 +22,6 @@ db.sequelize = sequelize;
 
 //Models
 db.organisations = require('../models/Organisation')(sequelize, Sequelize);
-db.parents = require('../models/Parent')(sequelize, Sequelize);
-
-//Relations
-db.parents.belongsTo(db.organisations);
+db.relations = require('../models/Relation')(sequelize, Sequelize);
 
 module.exports = db;

@@ -1,17 +1,21 @@
 'use strict';
 
 module.exports = function (sequelize, Sequelize) {
-    const Parent = sequelize.define('parents', {
+    const Relation = sequelize.define('relations', {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        organisationId: {
+        organisation: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
+        parent: {
             type: Sequelize.STRING,
             allowNull: false,
         },
     });
 
-    return Parent;
+    return Relation;
 }

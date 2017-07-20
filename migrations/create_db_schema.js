@@ -12,6 +12,7 @@ module.exports = {
             name: {
                 type: Sequelize.STRING,
                 allowNull: false,
+                unique: true,
             },
             createdAt: {
                 allowNull: false,
@@ -22,18 +23,19 @@ module.exports = {
                 type: Sequelize.DATE
             }
         }).then(function () {
-            queryInterface.createTable('parents', {
+            queryInterface.createTable('relations', {
                 id: {
                     type: Sequelize.INTEGER,
                     primaryKey: true,
                     autoIncrement: true,
                 },
-                organisationsId: {
-                    type: Sequelize.INTEGER,
-                    references: {
-                        model: 'organisations',
-                        key: 'id'
-                    }
+                organisation: {
+                    type: Sequelize.STRING,
+                    allowNull: false
+                },
+                parent: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
                 },
                 createdAt: {
                     allowNull: false,
@@ -51,7 +53,7 @@ module.exports = {
 
     down: function (queryInterface, Sequelize, done) {
         queryInterface.dropTable('organisations').then(function () {
-            queryInterface.dropTable('parents');
+            queryInterface.dropTable('relations');
         }).then(function () {
             done();
         });
