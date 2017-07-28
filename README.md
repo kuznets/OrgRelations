@@ -74,7 +74,7 @@ In your work directory open command line
 
 	$ git clone https://github.com/kuznets/OrgRelations.git
 	
-Go to directory ParkingHouse
+Go to directory OrgRelations
 
 	$ cd OrgRelations
 

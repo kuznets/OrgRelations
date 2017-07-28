@@ -16,5 +16,6 @@ exports.configure = function configure(app) {
     // API routes
     // ---------------------------------------------------------
     app.post('/api/organisations', organisation.create.addNewOrganisations);
+    app.get('/api/organisation/:name', organisation.getOrganisation);
 
 }

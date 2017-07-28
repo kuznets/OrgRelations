@@ -4,15 +4,86 @@
  *
  * routes:
  *  /api/create/organisations
+ *  /api/organisation/:name
  */
 
 const db = require('../config/db.js');
 
 exports.create = {};
 exports.create.addNewOrganisations = addNewOrganisations;
+exports.getOrganisation = getOrganisation;
 
 let parseOrgList = [];
 let errMsg = {};
+
+/**
+ * GET /api/organisation/:name
+ * Return list of organisation and him family
+ * @method getOrganisation
+ * @return json {message: 'status information'}
+ */
+function getOrganisation(req, res) {
+    let orgName = req.params.name;
+    let result = [];
+
+    //Found parent relations
+    db.relations.findAll({where: {organisation: orgName}, raw: true})
+        .then(parent => {
+            parent.forEach(parentItem => {
+                result.push({
+                    "relationship_type": "parent",
+                    "org_name": parentItem.parent
+                });
+                //Found sisters relations
+                db.relations.findAll({where: {parent: parentItem.parent}, raw: true})
+                    .then(sister => {
+                        sister.forEach(sisterItem => {
+                            if (sisterItem.organisation != orgName) {
+                                let sistersIs = result.filter(elem => {
+                                    return elem.relationship_type == 'sister' && elem.org_name == sisterItem.organisation
+                                });
+                                if (sistersIs.length == 0) {
+                                    result.push({
+                                        "relationship_type": "sister",
+                                        "org_name": sisterItem.organisation
+                                    });
+                                }
+
+
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.log('Found sisters Error: ', error);
+                        res.status(200).send('Server response error: ', error);
+                    });
+            });
+            //Found daughters
+            db.relations.findAll({where: {parent: orgName}, raw: true})
+                .then(daughter => {
+                    daughter.forEach(daughterItem => {
+                        result.push({
+                            "relationship_type": "daughter",
+                            "org_name": daughterItem.organisation
+                        });
+                        //Sorting
+                        result.sort(sortByOrgName);
+                        res.status(200).send(result);
+                    });
+
+                })
+                .catch(error => {
+                    console.log('Found daughters Error: ', error);
+                    res.status(200).send('Server response error: ', error);
+                });
+
+            // res.status(200).send('OK');
+        })
+        .catch(error => {
+            console.log('Found parent Error: ', error);
+            res.status(200).send('Server response error: ', error);
+        });
+}
 
 /**
  * POST /api/create/organisations
@@ -29,8 +100,6 @@ function addNewOrganisations(req, res) {
     } else {
         parseRequestAndCreateOrgList(req.body);
         if (parseOrgList.length != 0) {
-            console.log(parseOrgList);
-
             let foundOrgs = new Map();
             let list = parseOrgList.map(item => {
                 let foundOrgPromise = foundOrgs.get(item.org_name);
@@ -39,9 +108,9 @@ function addNewOrganisations(req, res) {
                     foundOrgs.set(item.org_name, foundOrgPromise);
                 }
                 return foundOrgPromise.then(org => {
-                    if(org) {
+                    if (org) {
                         // item.org_id = org.id;
-                        if(item.parent_name != null) {
+                        if (item.parent_name != null) {
                             createNewParent(item);
                         }
                     }
@@ -133,6 +202,15 @@ function createNewParent(data) {
     return db.relations.create({organisation: data.org_name, parent: data.parent_name})
         .then(created => {
             return created.dataValues;
-    });
+        });
+}
+
+/**
+ * Method sort array by org name
+ */
+function sortByOrgName(a, b) {
+    if (a.org_name > b.org_name) {
+        return 1;
+    }
 }
 
