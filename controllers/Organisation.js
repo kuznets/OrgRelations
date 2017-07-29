@@ -8,6 +8,7 @@
  */
 
 const db = require('../config/db.js');
+const paginate = require('paginate-array');
 
 exports.create = {};
 exports.create.addNewOrganisations = addNewOrganisations;
@@ -25,6 +26,8 @@ let errMsg = {};
 function getOrganisation(req, res) {
     let orgName = req.params.name;
     let result = [];
+    let pageNumber = 1;
+    let numItemsPerPage = 100;
 
     //Found parent relations
     db.relations.findAll({where: {organisation: orgName}, raw: true})
@@ -48,8 +51,6 @@ function getOrganisation(req, res) {
                                         "org_name": sisterItem.organisation
                                     });
                                 }
-
-
                             }
                         });
                     })
@@ -68,16 +69,15 @@ function getOrganisation(req, res) {
                         });
                         //Sorting
                         result.sort(sortByOrgName);
-                        res.status(200).send(result);
+                        //Pagination
+                        let paginateResult = paginate(result, pageNumber, numItemsPerPage);
+                        res.status(200).send(paginateResult);
                     });
-
                 })
                 .catch(error => {
                     console.log('Found daughters Error: ', error);
                     res.status(200).send('Server response error: ', error);
                 });
-
-            // res.status(200).send('OK');
         })
         .catch(error => {
             console.log('Found parent Error: ', error);
